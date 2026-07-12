@@ -1,0 +1,6 @@
+node_modules/
+.env
+.chrome-profile/
+.shuttlebot/
+pm-debug.log*
+package-lock.json
