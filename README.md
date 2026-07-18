@@ -39,7 +39,7 @@ On Debian/Ubuntu/Raspbian:
 sudo apt install -y chromium-browser
 ```
 
-On Raspberry Pi OS or Raspberry Pi 4:
+On Raspberry Pi OS / Raspberry Pi 4:
 ```bash
 sudo apt install -y chromium-browser
 ```
@@ -50,6 +50,20 @@ sudo pacman -Syu chromium
 ```
 
 If Chromium is installed in a custom location, set `CHROME_PATH` in `.env`.
+
+### 3. Install PM2 (optional, recommended for Raspberry Pi)
+
+Install PM2 globally so the bot can run as a background service and restart automatically:
+```bash
+sudo npm install -g pm2
+```
+
+If you use `nvm` or a non-root Node installation, install it without `sudo`:
+```bash
+npm install -g pm2
+```
+
+Then use PM2 to start and manage the bot (see the PM2 section below).
 
 ### 3. Prepare environment
 
@@ -142,7 +156,12 @@ npm run debug
 
 If you want the bot to keep running after logout or reboot, use PM2.
 
-Install PM2 globally:
+Install PM2 globally on Raspberry Pi / Debian-based Linux:
+```bash
+sudo npm install -g pm2
+```
+
+If you manage Node with `nvm`, install it without `sudo`:
 ```bash
 npm install -g pm2
 ```
@@ -157,6 +176,8 @@ Save the process list so it restarts automatically after reboot:
 pm2 save
 pm2 startup
 ```
+
+If `pm2 startup` prints a command, run that command exactly to finish setup.
 
 Check logs:
 ```bash

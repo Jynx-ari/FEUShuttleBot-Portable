@@ -40,6 +40,7 @@ try {
 }
 const ALERTED_DAYS_FILE = path.join(DATA_DIR, 'alerted-days.json');
 const OLD_ALERTED_DAYS_FILE = path.join(DATA_DIR, 'alerted-days-old.json');
+const BROWSER_PROFILE_DIR = path.join(DATA_DIR, 'chrome-profile');
 
 
 
@@ -83,6 +84,27 @@ async function writeJsonFile(filePath, data) {
 }
 
 // notifier.js handles Teams/Discord notifications and retries
+
+function buildLaunchOptions(userDataDir, executablePath) {
+    return {
+        executablePath: executablePath || undefined,
+        userDataDir,
+        headless: HEADLESS,
+        defaultViewport: null,
+        args: [
+            '--start-maximized',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-software-rasterizer'
+        ]
+    };
+}
+
+function getFallbackProfileDir() {
+    return fs.mkdtempSync(path.join(os.tmpdir(), 'shuttlebot-chrome-profile-'));
+}
 
 // Helper to scrape current available days from the calendar
 async function getAvailableDays(page) {
@@ -321,15 +343,23 @@ async function sendMessage(currentlyOpen, newDates){
         console.warn('No explicit browser executable found; Puppeteer will use its default bundled Chromium if available.');
     }
 
-    const LAUNCH_OPTIONS = {
-        executablePath: browserExecutable || undefined,
-        userDataDir: path.join(__dirname, 'chrome-profile'),
-        headless: HEADLESS,
-        defaultViewport: null,
-        args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-    };
+    const defaultProfileDir = BROWSER_PROFILE_DIR;
+    const LAUNCH_OPTIONS = buildLaunchOptions(defaultProfileDir, browserExecutable);
 
-    browser = await puppeteer.launch(LAUNCH_OPTIONS);
+    try {
+        browser = await puppeteer.launch(LAUNCH_OPTIONS);
+    } catch (launchError) {
+        const message = String(launchError.message || launchError);
+        if (/profile appears to be in use|profile.*locked/i.test(message)) {
+            console.warn('Chromium profile is locked; retrying with a temporary browser profile.');
+            const fallbackProfileDir = getFallbackProfileDir();
+            const fallbackLaunchOptions = buildLaunchOptions(fallbackProfileDir, browserExecutable);
+            browser = await puppeteer.launch(fallbackLaunchOptions);
+        } else {
+            throw launchError;
+        }
+    }
+
     page = await browser.newPage();
 
     // Load persisted alerts (if any)
