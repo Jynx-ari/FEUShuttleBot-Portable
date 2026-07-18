@@ -135,7 +135,7 @@ Set the following in `.env`:
 - `DISCORDWEBHOOK_URL`
 - `DISCORD_ENABLED=true` to enable Discord notifications
 - `DISCORD_PING=true` to enable role pings on Discord
-- `DISCORD_ROLE_ID=1471243274617360434` to set a custom Discord role mention ID
+- `DISCORD_ROLE_ID=1234567891011121314` to set a custom Discord role mention ID
 - `TEAMS_ENABLED=true` to enable Microsoft Teams notifications
 - `DEBUG=true` for safe debugging mode (no Discord role ping)
 - `HEADLESS=false` to launch a visible browser window
