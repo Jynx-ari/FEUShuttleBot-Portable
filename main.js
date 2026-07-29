@@ -19,7 +19,8 @@ const storage = require('./storage');
 
 
 // Configuration from .env
-const {USER_EMAIL, USER_PASSWORD, FEUA_SESSION_COOKIE} = process.env;
+const {USER_EMAIL, USER_PASSWORD, FEUA_SESSION_COOKIE, USE_SESSION_COOKIE} = process.env;
+const ENABLE_SESSION_COOKIE = String(process.env.USE_SESSION_COOKIE || 'false').toLowerCase() === 'true';
 const {LOGIN_URL, BOOKING_URL} = {
     LOGIN_URL: 'https://feua.kliquep2p.com',
     BOOKING_URL: 'https://feua.kliquep2p.com/client/booking-now'
@@ -91,14 +92,7 @@ function buildLaunchOptions(userDataDir, executablePath) {
         userDataDir,
         headless: HEADLESS,
         defaultViewport: null,
-        args: [
-            '--start-maximized',
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--disable-software-rasterizer'
-        ]
+        args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     };
 }
 
@@ -177,15 +171,24 @@ async function ensureLoggedIn(page) {
         // Save current alertedDays as the "old" snapshot (include timestamp)
         await writeJsonFile(OLD_ALERTED_DAYS_FILE, { days: alertedDays || [], lastUpdated: lastUpdated || new Date().toISOString() });
 
-        // Try to use session cookie first, fallback to password login if cookie not available
-        const cookieSet = await setSessionCookie(page);
-        if (!cookieSet && USER_EMAIL && USER_PASSWORD) {
-            console.log('Cookie not available, falling back to email/password login...');
+        if (ENABLE_SESSION_COOKIE) {
+            // Try to use session cookie first, fallback to password login if cookie not available
+            const cookieSet = await setSessionCookie(page);
+            if (!cookieSet && USER_EMAIL && USER_PASSWORD) {
+                console.log('Cookie not available, falling back to email/password login...');
+                await performLogin(page);
+            } else if (!cookieSet) {
+                console.error('No session cookie or login credentials available!');
+                return;
+            }
+        } else if (USER_EMAIL && USER_PASSWORD) {
+            console.log('Session cookie login disabled; using email/password login.');
             await performLogin(page);
-        } else if (!cookieSet) {
-            console.error('No session cookie or login credentials available!');
+        } else {
+            console.error('Session cookie login disabled and no email/password credentials available!');
             return;
         }
+
         await page.goto(BOOKING_URL, { waitUntil: 'networkidle2' });
 
         // After login, grab the current available days and replace alertedDays

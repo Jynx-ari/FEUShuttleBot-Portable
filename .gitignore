@@ -1,6 +1,7 @@
 node_modules/
+chrome-profile/
+*.db
 .env
-.chrome-profile/
 .shuttlebot/
-pm-debug.log*
-package-lock.json
+pm2.log
+.cache/
