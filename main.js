@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { notifyAll } = require('./notifier');
+const { notify } = require('./src/notifier');
 const storage = require('./storage');
 
 
@@ -21,6 +21,7 @@ const storage = require('./storage');
 // Configuration from .env
 const {USER_EMAIL, USER_PASSWORD, FEUA_SESSION_COOKIE, USE_SESSION_COOKIE} = process.env;
 const ENABLE_SESSION_COOKIE = String(process.env.USE_SESSION_COOKIE || 'false').toLowerCase() === 'true';
+const ENABLE_PING = process.argv.some(arg => ['-with_ping', '--with_ping', '--with-ping'].includes(arg));
 const {LOGIN_URL, BOOKING_URL} = {
     LOGIN_URL: 'https://feua.kliquep2p.com',
     BOOKING_URL: 'https://feua.kliquep2p.com/client/booking-now'
@@ -262,7 +263,7 @@ async function checkCalendars(page, { notify = true } = {}) {
             // Notify via MS Teams and Discord about the new dates
             if (notify) {
                 try {
-                    await sendMessage(deduped, newDays);
+                    await sendMessage(deduped, newDays, ENABLE_PING);
                 } catch (notifyErr) {
                     console.error('Failed to send notifications:', notifyErr.message);
                 }
@@ -278,7 +279,7 @@ async function checkCalendars(page, { notify = true } = {}) {
     }
 }
 
-async function sendMessage(currentlyOpen, newDates){
+async function sendMessage(currentlyOpen, newDates, shouldPing = false){
     // Persist current availability and mark new dates as seen
     const seenAt = new Date().toISOString();
     if (Array.isArray(currentlyOpen) && currentlyOpen.length) {
@@ -292,8 +293,8 @@ async function sendMessage(currentlyOpen, newDates){
         storage.markNotified(dateTokens, new Date().toISOString());
     }
 
-    // Send notifications via notifier module
-    await notifyAll(currentlyOpen, newDates);
+    const currentlyOpenWithTime = storage.getDatesWithTimestamps(currentlyOpen);
+    await notify({ discord: true, sms: true, shouldPing, currentlyOpenWithTime });
 }
 
 
@@ -388,7 +389,7 @@ async function sendMessage(currentlyOpen, newDates){
     console.log('DEBUG: currentlyOpen=', currentlyOpen);
     console.log('DEBUG: newDates=', newDates);
 
-    await sendMessage(currentlyOpen, newDates);
+    await sendMessage(currentlyOpen, newDates, ENABLE_PING);
 
 
 
