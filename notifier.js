@@ -79,7 +79,7 @@ function formatDebugFieldLabel(dateInfo) {
     second: '2-digit',
     hour12: true
   });
-  return `${addedDateLong}   |   Added on: ${addedDateShort}   [${addedTime}]`;
+  return `${dateInfo.date}   |   Added on: ${addedDateShort}   [${addedTime}]`;
 }
 
 function buildDebugEmbed(currentlyOpenWithTime) {
