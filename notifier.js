@@ -104,7 +104,7 @@ function buildDebugEmbed(currentlyOpenWithTime) {
       }))
     : [{ name: 'EMPTY', value: '--------------------------------------------------------' }];
 
-  fields.push({
+  fields.push({ 
     name: 'BOOK HERE:',
     value: '[CLICK ME](https://feua.kliquep2p.com/client/booking-now)'
   });
@@ -134,6 +134,10 @@ async function notifyAll(currentlyOpen, newDates) {
   // Use current website open dates directly for the availability list.
   const currentlyOpenFormatted = currentlyOpenStrings;
   const newDatesFormatted = newDatesWithTime.map(formatDateWithTime);
+  
+  console.log('DEBUG notifier currentlyOpenStrings=', currentlyOpenStrings);
+  console.log('DEBUG notifier currentlyOpenWithTime=', currentlyOpenWithTime);
+  console.log('DEBUG notifier newDatesWithTime=', newDatesWithTime);
   
   const safeList = arr => (Array.isArray(arr) && arr.length) ? arr.join('\n- ') : 'None';
   const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
