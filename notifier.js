@@ -5,7 +5,7 @@ const storage = require('./storage');
 const msTeamsWebhook = process.env.MSTEAMSWEBHOOK_URL;
 const dcWebhook = process.env.DISCORDWEBHOOK_URL;
 const dcTestWebhook = process.env.DISCORD_TEST_WEBHOOK_URL;
-const DISCORD_ENABLED = String(process.env.DISCORD_ENABLED || 'true').toLowerCase() === 'true';
+  const DISCORD_ENABLED = String(process.env.DISCORD_ENABLED || 'true').toLowerCase() === 'true';
 const TEAMS_ENABLED = String(process.env.TEAMS_ENABLED || 'true').toLowerCase() === 'true';
 const DISCORD_USE_TEST_WEBHOOK = String(process.env.DISCORD_USE_TEST_WEBHOOK || 'false').toLowerCase() === 'true';
 const DISCORD_PING = String(process.env.DISCORD_PING || 'true').toLowerCase() === 'true';

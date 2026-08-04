@@ -385,13 +385,10 @@ async function sendMessage(currentlyOpen, newDates){
     const currentlyOpen = await getAvailableDays(page);
     const newDates = await checkCalendars(page, { notify: false });
 
-    // Attach detection time to any newly found dates for the initial message
-    const detectionTime = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
-    const newDatesWithTime = (Array.isArray(newDates) && newDates.length)
-        ? newDates.map(d => `${d} (released ${detectionTime})`)
-        : [];
+    console.log('DEBUG: currentlyOpen=', currentlyOpen);
+    console.log('DEBUG: newDates=', newDates);
 
-    await sendMessage(currentlyOpen, newDatesWithTime);
+    await sendMessage(currentlyOpen, newDates);
 
 
 
