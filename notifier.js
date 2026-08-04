@@ -131,8 +131,8 @@ async function notifyAll(currentlyOpen, newDates) {
   const currentlyOpenWithTime = storage.getDatesWithTimestamps(currentlyOpenStrings);
   const newDatesWithTime = storage.getDatesWithTimestamps(dateStrings);
   
-  // Format the dates with their added times
-  const currentlyOpenFormatted = currentlyOpenWithTime.map(formatDateWithTime);
+  // Use current website open dates directly for the availability list.
+  const currentlyOpenFormatted = currentlyOpenStrings;
   const newDatesFormatted = newDatesWithTime.map(formatDateWithTime);
   
   const safeList = arr => (Array.isArray(arr) && arr.length) ? arr.join('\n- ') : 'None';

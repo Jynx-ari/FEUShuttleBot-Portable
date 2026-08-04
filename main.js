@@ -259,11 +259,10 @@ async function checkCalendars(page, { notify = true } = {}) {
             await writeJsonFile(ALERTED_DAYS_FILE, { days: alertedDays, lastUpdated });
             try { await storage.upsertDates(alertedDays, lastUpdated); } catch (e) { console.error('DB persist failed:', e.message); }
 
-            // Notify via MS Teams and Discord about the new dates (include per-date detection time)
+            // Notify via MS Teams and Discord about the new dates
             if (notify) {
-                const newDatesWithTime = newDays.map(d => `${d} (released ${detectionTime})`);
                 try {
-                    await sendMessage(deduped, newDatesWithTime);
+                    await sendMessage(deduped, newDays);
                 } catch (notifyErr) {
                     console.error('Failed to send notifications:', notifyErr.message);
                 }
